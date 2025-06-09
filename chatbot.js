@@ -46,7 +46,8 @@ const atendimentoManual = {};
 const interessadosGrupo = [];
 
 client.on('qr', qr => {
-    qrcode.generate(qr, { small: true });
+    qrCodeString = qr; // Agora a rota /qrcode terá acesso à string
+    qrcode.generate(qr, { small: true }); // Continua imprimindo no terminal
 });
 
 client.on('ready', () => {
