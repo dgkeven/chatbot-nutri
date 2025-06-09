@@ -1,18 +1,41 @@
 const express = require('express');
-const app = express();
+const qrcode = require('qrcode');
+const { Client, LocalAuth } = require('whatsapp-web.js');
 
+const app = express();
 const PORT = process.env.PORT || 3000;
+
+let qrCodeString = null;
 
 app.get('/', (req, res) => {
     res.send('Bot WhatsApp rodando!');
 });
 
+// Nova rota para visualizar o QR Code como imagem
+app.get('/qrcode', async (req, res) => {
+    if (!qrCodeString) {
+        return res.send('QR Code ainda não gerado. Aguarde o bot inicializar.');
+    }
+
+    try {
+        const qrImage = await qrcode.toDataURL(qrCodeString);
+        const html = `
+            <html>
+                <body style="text-align:center; font-family:sans-serif">
+                    <h2>Escaneie o QR Code abaixo para autenticar no WhatsApp</h2>
+                    <img src="${qrImage}" />
+                </body>
+            </html>
+        `;
+        res.send(html);
+    } catch (err) {
+        res.status(500).send('Erro ao gerar imagem do QR Code');
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor HTTP rodando na porta ${PORT}`);
 });
-
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
 
 const client = new Client({
     authStrategy: new LocalAuth()
