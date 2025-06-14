@@ -100,9 +100,11 @@ client.on('message', async msg => {
         case 0:
             client.sendMessage(chatId, `Olá! 👋 Bem-vinda! Como posso te ajudar hoje?
     
-    1 - Agendar consulta nutricional
-    2 - Saber mais sobre o Grupo Metamorfose
-    3 - Tira dúvidas ou envio de exames`);
+    1 - Agendar consulta nutricional  
+    2 - Saber mais sobre o Grupo Metamorfose  
+    3 - Tira dúvidas ou envio de exames  
+    
+    ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
             agendamentos[chatId].etapa = 1;
             break;
 
@@ -147,23 +149,25 @@ client.on('message', async msg => {
                 client.sendMessage(chatId, mensagemGrupo);
                 delete agendamentos[chatId];
             } else if (texto === '3') {
-                client.sendMessage(chatId, `👩‍⚕️ Você pode enviar suas dúvidas por aqui ou anexar seus exames diretamente nesta conversa. Assim que possível, responderei ou encaminharei para análise. 😊`);
-                delete agendamentos[chatId]; // Encerra o fluxo automático
-            } else {
-                client.sendMessage(chatId, 'Por favor, escolha uma das opções: 1, 2 ou 3.');
+                client.sendMessage(chatId, `👩‍⚕️ Você pode enviar suas dúvidas por aqui ou anexar seus exames diretamente nesta conversa. Assim que possível, responderei ou encaminharei para análise. 😊  
+    
+    ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
+                delete agendamentos[chatId];
             }
             break;
 
         case 2:
             agendamentos[chatId].disponibilidade = msg.body;
             client.sendMessage(chatId, `Ótimo! Agora, por favor, informe seu principal objetivo com a consulta nutricional:
-
-1 - Emagrecimento
-2 - Controle de taxas
-3 - Reeducação alimentar
-4 - Hipertrofia/definição
-5 - Gestante/tentante
-6 - Doenças associadas (Diabetes, Gordura no fígado, SOP, Problemas intestinais, etc).`);
+        
+        1 - Emagrecimento  
+        2 - Controle de taxas  
+        3 - Reeducação alimentar  
+        4 - Hipertrofia/definição  
+        5 - Gestante/tentante  
+        6 - Doenças associadas (Diabetes, Gordura no fígado, SOP, Problemas intestinais, etc).  
+        
+        ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
             agendamentos[chatId].etapa = 3;
             break;
 
@@ -184,7 +188,7 @@ client.on('message', async msg => {
                 client.sendMessage(chatId, `Perfeito! Recebi sua disponibilidade e objetivo: ${escolha}. Em breve entrarei em contato para agendarmos sua consulta. Até logo! 😊`);
                 delete agendamentos[chatId];
             } else {
-                client.sendMessage(chatId, 'Opção inválida. Por favor, escolha uma das opções listadas.');
+                client.sendMessage(chatId, 'Opção inválida. Por favor, escolha uma das opções listadas. ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.');
             }
             break;
     }
