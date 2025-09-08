@@ -226,4 +226,13 @@ client.on('message', async msg => {
 
 });
 
-client.initialize();
+// Inicialização do client com tratamento de erro
+(async () => {
+    try {
+        await client.initialize();
+    } catch (err) {
+        console.error('Erro ao inicializar o bot:', err);
+        setTimeout(() => process.exit(1), 5000); // PM2 reinicia
+    }
+})();
+
