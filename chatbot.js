@@ -40,18 +40,14 @@ app.listen(PORT, () => {
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        headless: false, // Para visualizar o Chromium durante o teste
+        headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-extensions',
-            '--disable-gpu',
-            '--single-process',
-            '--no-zygote'
+            '--disable-dev-shm-usage'
         ],
         defaultViewport: null,
-        waitUntil: 'networkidle2'
+        timeout: 0 // desativa timeout do Puppeteer
     }
 });
 
