@@ -40,7 +40,7 @@ app.listen(PORT, () => {
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        headless: true,
+        headless: false, // Para visualizar o Chromium durante o teste
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -49,10 +49,11 @@ const client = new Client({
             '--disable-gpu',
             '--single-process',
             '--no-zygote'
-        ]
+        ],
+        defaultViewport: null,
+        waitUntil: 'networkidle2'
     }
 });
-
 
 const agendamentos = {};
 const atendimentoManual = {};
