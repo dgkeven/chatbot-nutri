@@ -53,7 +53,7 @@ async function startBot() {
         useChrome: true,
         cacheEnabled: false,
         qrLogSkip: false,
-        executablePath: '/usr/bin/chromium-browser',
+        executablePath: '/snap/bin/chromium',
         browserArgs: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
