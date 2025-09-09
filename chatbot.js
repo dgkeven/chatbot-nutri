@@ -41,21 +41,43 @@ const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
-        executablePath: '/usr/bin/chromium-browser', // <-- Chromium do sistema
+        executablePath: '/snap/bin/chromium',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-accelerated-2d-canvas',
             '--disable-gpu',
-            '--no-zygote',
             '--single-process',
             '--disable-software-rasterizer',
-            '--disable-features=VizDisplayCompositor' // <--- importante
+            '--disable-features=VizDisplayCompositor'
         ]
     }
 });
 
+const puppeteer = require('puppeteer-core');
+
+(async () => {
+    try {
+        const browser = await puppeteer.launch({
+            headless: true,
+            executablePath: '/snap/bin/chromium',
+            args: [
+                '--no-sandbox',
+                '--disable-gpu',
+                '--disable-dev-shm-usage'
+            ]
+        });
+
+        const page = await browser.newPage();
+        await page.goto('https://www.google.com');
+        console.log('Título da página (teste Puppeteer):', await page.title());
+
+        await browser.close();
+    } catch (err) {
+        console.error('Erro ao abrir Chromium:', err);
+    }
+})();
 
 const agendamentos = {};
 const atendimentoManual = {};
