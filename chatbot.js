@@ -41,18 +41,29 @@ const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
-        executablePath: '/snap/bin/chromium',
+        executablePath: '/usr/bin/chromium-browser', // ou onde o Chromium está instalado
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
             '--disable-gpu',
-            '--single-process',
             '--disable-software-rasterizer',
-            '--disable-features=VizDisplayCompositor'
+            '--single-process',
+            '--disable-features=VizDisplayCompositor',
+            '--disable-extensions',
+            '--disable-background-networking',
+            '--disable-background-timer-throttling',
+            '--disable-client-side-phishing-detection',
+            '--disable-default-apps',
+            '--disable-hang-monitor',
+            '--disable-popup-blocking',
+            '--disable-sync',
+            '--metrics-recording-only',
+            '--no-first-run',
+            '--safebrowsing-disable-auto-update'
         ]
     }
+
 });
 
 const puppeteer = require('puppeteer-core');
@@ -71,7 +82,7 @@ const puppeteer = require('puppeteer-core');
 
         const page = await browser.newPage();
         await page.goto('https://www.google.com');
-        console.log('Título da página (teste Puppeteer):', await page.title());
+        console.log('Puppetter rodando:', await page.title());
 
         await browser.close();
     } catch (err) {
