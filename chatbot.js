@@ -41,54 +41,16 @@ const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
-        executablePath: '/usr/bin/chromium-browser', // ou onde o Chromium está instalado
+        executablePath: '/usr/bin/chromium-browser',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-gpu',
-            '--disable-software-rasterizer',
-            '--single-process',
-            '--disable-features=VizDisplayCompositor',
-            '--disable-extensions',
-            '--disable-background-networking',
-            '--disable-background-timer-throttling',
-            '--disable-client-side-phishing-detection',
-            '--disable-default-apps',
-            '--disable-hang-monitor',
-            '--disable-popup-blocking',
-            '--disable-sync',
-            '--metrics-recording-only',
-            '--no-first-run',
-            '--safebrowsing-disable-auto-update'
+            '--single-process'
         ]
     }
-
 });
-
-const puppeteer = require('puppeteer-core');
-
-(async () => {
-    try {
-        const browser = await puppeteer.launch({
-            headless: true,
-            executablePath: '/snap/bin/chromium',
-            args: [
-                '--no-sandbox',
-                '--disable-gpu',
-                '--disable-dev-shm-usage'
-            ]
-        });
-
-        const page = await browser.newPage();
-        await page.goto('https://www.google.com');
-        console.log('Puppetter rodando:', await page.title());
-
-        await browser.close();
-    } catch (err) {
-        console.error('Erro ao abrir Chromium:', err);
-    }
-})();
 
 const agendamentos = {};
 const atendimentoManual = {};
