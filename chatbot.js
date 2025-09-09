@@ -1,15 +1,12 @@
+const { create, Client } = require('@open-wa/wa-automate');
 const express = require('express');
 const qrcode = require('qrcode');
-const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason } = require('@adiwajshing/baileys');
-const P = require('pino');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+let client; // Cliente WhatsApp
 let qrCodeString = null;
-let sock; // socket do WhatsApp
-let reinicios = 0;
-const MAX_REINICIOS = 5;
 
 const agendamentos = {};
 const atendimentoManual = {};
@@ -17,14 +14,12 @@ const interessadosGrupo = [];
 
 // Rota principal
 app.get('/', (req, res) => {
-    res.send('Bot WhatsApp rodando com Baileys!');
+    res.send('Bot WhatsApp rodando com @open-wa/wa-automate!');
 });
 
 // Rota para QR Code
 app.get('/qrcode', async (req, res) => {
-    if (!qrCodeString) {
-        return res.send('QR Code ainda não gerado. Aguarde o bot inicializar.');
-    }
+    if (!qrCodeString) return res.send('QR Code ainda não gerado. Aguarde o bot inicializar.');
     try {
         const qrImage = await qrcode.toDataURL(qrCodeString);
         res.send(`
@@ -40,116 +35,90 @@ app.get('/qrcode', async (req, res) => {
     }
 });
 
-// Inicialização do servidor HTTP
+// Inicializa o servidor HTTP
 app.listen(PORT, () => {
     console.log(`Servidor HTTP rodando na porta ${PORT}`);
 });
 
 // Função para iniciar o bot
 async function startBot() {
-    try {
-        const { state, saveCreds } = await useMultiFileAuthState('auth_info');
-        const { version } = await fetchLatestBaileysVersion();
+    client = await create({
+        sessionId: "bot-whatsapp",
+        multiDevice: true,           // Suporte a multi-device
+        qrTimeout: 0,                // QR Code infinito até autenticar
+        authTimeout: 0,
+        blockCrashLogs: true,
+        disableSpins: true,
+        headless: true,              // Puppeteer headless
+        useChrome: true,
+        cacheEnabled: false,
+        qrLogSkip: false
+    });
 
-        sock = makeWASocket({
-            version,
-            auth: state,
-            printQRInTerminal: true,
-            logger: P({ level: 'silent' }),
-        });
+    client.onStateChanged((state) => {
+        if (state === 'CONFLICT' || state === 'UNPAIRED') {
+            console.log('Reconectando...');
+            client.forceRefocus();
+        }
+    });
 
-        sock.ev.on('connection.update', (update) => {
-            const { qr, connection, lastDisconnect } = update;
+    // Captura QR Code
+    client.onQr((qr) => {
+        qrCodeString = qr;
+        console.log('QR Code gerado, abra a rota /qrcode para escanear');
+    });
 
-            if (qr) {
-                qrCodeString = qr;
-                reinicios = 0; // reset reinícios quando QR gerado
-            }
+    // Mensagens recebidas
+    client.onMessage(async (message) => {
+        const chatId = message.from;
+        const texto = (message.body || '').trim().toLowerCase();
 
-            if (connection === 'close') {
-                const reason = lastDisconnect?.error?.output?.statusCode || 0;
-                console.log('Desconectado:', reason);
+        if (message.isGroupMsg) return; // Ignorar grupos
 
-                if (reason === DisconnectReason.loggedOut) {
-                    console.log('Sessão deslogada. Apague "auth_info" e gere QR novamente.');
-                    qrCodeString = null;
-                    return;
-                }
-
-                // Evita reinício infinito
-                if (reinicios < MAX_REINICIOS) {
-                    reinicios++;
-                    console.log(`Reiniciando bot... (tentativa ${reinicios})`);
-                    setTimeout(() => startBot(), 5000);
-                } else {
-                    console.log('Máximo de reinícios atingido. Verifique a conta e rede.');
-                }
-            }
-
-            if (connection === 'open') {
-                console.log('Bot está pronto!');
-                reinicios = 0;
-            }
-        });
-
-        sock.ev.on('creds.update', saveCreds);
-
-        sock.ev.on('messages.upsert', async (m) => {
-            const msg = m.messages[0];
-            if (!msg.message || msg.key.remoteJid.includes('@g.us')) return;
-
-            const chatId = msg.key.remoteJid;
-            const texto = msg.message.conversation?.trim().toLowerCase() || '';
-
-            // Comando encerrar manual
-            if (texto === 'encerrar') {
-                if (atendimentoManual[chatId]) {
-                    delete atendimentoManual[chatId];
-                    sock.sendMessage(chatId, '✅ Atendimento automático reativado. Conte comigo!');
-                } else {
-                    sock.sendMessage(chatId, '⚠️ Você não está em atendimento manual. Envie "manual" para desativar o robô.');
-                }
-                return;
-            }
-
-            // Comando manual
-            if (texto === 'manual') {
-                atendimentoManual[chatId] = true;
-                sock.sendMessage(chatId, '🤖 Atendimento automático desativado. Agora está em modo manual.');
-                return;
-            }
-
+        // Comando "encerrar"
+        if (texto === 'encerrar') {
             if (atendimentoManual[chatId]) {
-                console.log(`Usuário ${chatId} está em modo manual. Ignorando mensagem.`);
-                return;
+                delete atendimentoManual[chatId];
+                await client.sendText(chatId, '✅ Atendimento automático reativado. Conte comigo!');
+            } else {
+                await client.sendText(chatId, '⚠️ Você não está em atendimento manual. Envie "manual" para desativar o robô.');
             }
+            return;
+        }
 
-            if (!agendamentos[chatId]) {
-                agendamentos[chatId] = { etapa: 0 };
-            }
+        // Comando "manual"
+        if (texto === 'manual') {
+            atendimentoManual[chatId] = true;
+            await client.sendText(chatId, '🤖 Atendimento automático desativado. Agora está em modo manual.');
+            return;
+        }
 
-            const etapa = agendamentos[chatId].etapa;
+        if (atendimentoManual[chatId]) return;
 
-            if (texto === 'cancelar') {
-                delete agendamentos[chatId];
-                return sock.sendMessage(chatId, 'Atendimento cancelado. Se precisar de algo, estou à disposição!');
-            }
+        if (!agendamentos[chatId]) agendamentos[chatId] = { etapa: 0 };
+        const etapa = agendamentos[chatId].etapa;
 
-            switch (etapa) {
-                case 0:
-                    sock.sendMessage(chatId, `Olá! 👋 Bem-vinda! Como posso te ajudar hoje?
+        if (texto === 'cancelar') {
+            delete agendamentos[chatId];
+            return await client.sendText(chatId, 'Atendimento cancelado. Se precisar de algo, estou à disposição!');
+        }
+
+        // Fluxo de atendimento
+        switch (etapa) {
+            case 0:
+                await client.sendText(chatId, `Olá! 👋 Bem-vinda! Como posso te ajudar hoje?
 
 1 - Agendar consulta nutricional  
 2 - Saber mais sobre o Grupo Metamorfose  
 3 - Tira dúvidas ou envio de exames  
 
 ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
-                    agendamentos[chatId].etapa = 1;
-                    break;
+                agendamentos[chatId].etapa = 1;
+                break;
 
-                case 1:
-                    if (texto === '1') {
-                        sock.sendMessage(chatId, `Olá! Meu nome é Priscilla Dalbem, sou nutricionista há 13 anos, especializada em Nutrição Esportiva, Saúde da Mulher, Fitoterapia e Gastronomia Aplicada à Nutrição.
+            case 1:
+                if (texto === '1') {
+                    await client.sendText(chatId, `Olá! Meu nome é Priscilla Dalbem, sou nutricionista há 13 anos, especializada em Nutrição Esportiva, Saúde da Mulher, Fitoterapia e Gastronomia Aplicada à Nutrição.
 
                     Meu acompanhamento tem duração média de 50 minutos, onde realizo uma anamnese completa para entender sua rotina, preferências e objetivos. Também solicito exames de sangue para avaliar possíveis carências nutricionais ou alterações hormonais. Além disso, faço uma avaliação física detalhada, incluindo peso, altura, bioimpedância, dobras cutâneas e circunferências, para calcular seu percentual de gordura e massa muscular.
                     
@@ -160,14 +129,11 @@ async function startBot() {
                     Caso tenha interesse, posso verificar um horário para você. 😊
                     
                     Por favor, informe sua disponibilidade de dia e horário. Atendo de segunda a quinta-feira, das 08:00 às 11:00 e das 14:00 às 18:00`);
-                        agendamentos[chatId].etapa = 2;
-                    } else if (texto === '2') {
-                        const contato = await msg.getContact();
-                        interessadosGrupo.push({
-                            nome: contato.pushname || contato.name || 'Desconhecido',
-                            numero: chatId
-                        });
-                        sock.sendMessage(chatId, `🌸 *Grupo Metamorfose – Sua transformação começa agora!*
+                    agendamentos[chatId].etapa = 2;
+                } else if (texto === '2') {
+                    const nome = message.sender.pushname || 'Desconhecido';
+                    interessadosGrupo.push({ nome, numero: chatId });
+                    await client.sendText(chatId, `🌸 *Grupo Metamorfose – Sua transformação começa agora!*
 
                 Você, mulher que está cansada de dietas restritivas, da culpa ao comer e da pressão para ter um corpo “perfeito”… chegou a hora de viver uma nova relação com a comida – e com você mesma.
                 
@@ -183,55 +149,60 @@ async function startBot() {
                 ✨ *Não é sobre “seguir dieta”, é sobre se reconectar com seu corpo e com a sua essência. É sobre transformar de dentro para fora.*
                 
                 📣 *Vagas limitadas!* Me envie uma mensagem para garantir a sua participação no Grupo Metamorfose!`);
-                        delete agendamentos[chatId];
-                    } else if (texto === '3') {
-                        sock.sendMessage(chatId, `👩‍⚕️ Você pode enviar suas dúvidas por aqui ou anexar seus exames diretamente nesta conversa. Assim que possível, responderei ou encaminharei para análise. 😊`);
-                        delete agendamentos[chatId];
-                    }
-                    break;
-
-                case 2:
-                    agendamentos[chatId].disponibilidade = texto;
-                    sock.sendMessage(chatId, `Ótimo! Agora, por favor, informe seu principal objetivo com a consulta nutricional:`);
-                    agendamentos[chatId].etapa = 3;
-                    break;
-
-                case 3:
-                    const objetivos = {
-                        '1': 'Emagrecimento',
-                        '2': 'Controle de taxas',
-                        '3': 'Reeducação alimentar',
-                        '4': 'Hipertrofia/definição',
-                        '5': 'Gestante/tentante',
-                        '6': 'Doenças associadas'
-                    };
-                    const escolha = objetivos[texto];
-                    if (escolha) {
-                        agendamentos[chatId].objetivo = escolha;
-                        sock.sendMessage(chatId, `Perfeito! Recebi sua disponibilidade e objetivo: ${escolha}. Em breve entrarei em contato para agendarmos sua consulta. Até logo! 😊`);
-                        delete agendamentos[chatId];
-                    } else {
-                        sock.sendMessage(chatId, 'Opção inválida. Por favor, escolha uma das opções listadas. ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.');
-                    }
-                    break;
-            }
-
-            if (texto === 'tenho interesse') {
-                const contato = await msg.getContact();
-                const nome = contato.pushname || contato.name || 'Desconhecido';
-                if (!interessadosGrupo.some(i => i.numero === chatId)) {
-                    interessadosGrupo.push({ nome, numero: chatId });
+                    delete agendamentos[chatId];
+                } else if (texto === '3') {
+                    await client.sendText(chatId, `👩‍⚕️ Você pode enviar suas dúvidas por aqui ou anexar seus exames diretamente nesta conversa. Assim que possível, responderei ou encaminharei para análise. 😊  
+    
+    ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
+                    delete agendamentos[chatId];
                 }
-                sock.sendMessage(chatId, `🥰 Que bom saber do seu interesse, ${nome}! Assim que eu tiver uma nova data para o próximo Grupo Metamorfose, entrarei em contato com você. Até breve! 💕`);
-                return;
+                break;
+
+            case 2:
+                agendamentos[chatId].disponibilidade = texto;
+                await client.sendText(chatId, `Ótimo! Agora, por favor, informe seu principal objetivo com a consulta nutricional:
+
+1 - Emagrecimento  
+2 - Controle de taxas  
+3 - Reeducação alimentar  
+4 - Hipertrofia/definição  
+5 - Gestante/tentante  
+6 - Doenças associadas (Diabetes, Gordura no fígado, SOP, Problemas intestinais, etc).  
+
+❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
+                agendamentos[chatId].etapa = 3;
+                break;
+
+            case 3:
+                const objetivos = {
+                    '1': 'Emagrecimento',
+                    '2': 'Controle de taxas',
+                    '3': 'Reeducação alimentar',
+                    '4': 'Hipertrofia/definição',
+                    '5': 'Gestante/tentante',
+                    '6': 'Doenças associadas'
+                };
+                const escolha = objetivos[texto];
+                if (escolha) {
+                    agendamentos[chatId].objetivo = escolha;
+                    await client.sendText(chatId, `Perfeito! Recebi sua disponibilidade e objetivo: ${escolha}. Em breve entrarei em contato para agendarmos sua consulta. Até logo! 😊`);
+                    delete agendamentos[chatId];
+                } else {
+                    await client.sendText(chatId, 'Opção inválida. Por favor, escolha uma das opções listadas. ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.');
+                }
+                break;
+        }
+
+        // Interesse no grupo
+        if (texto === 'tenho interesse') {
+            const nome = message.sender.pushname || 'Desconhecido';
+            if (!interessadosGrupo.some(i => i.numero === chatId)) {
+                interessadosGrupo.push({ nome, numero: chatId });
             }
-
-        });
-
-    } catch (err) {
-        console.error('Erro ao iniciar o bot:', err);
-    }
+            await client.sendText(chatId, `🥰 Que bom saber do seu interesse, ${nome}! Assim que eu tiver uma nova data para o próximo Grupo Metamorfose, entrarei em contato com você. Até breve! 💕`);
+        }
+    });
 }
 
-// Inicia o bot
-startBot();
+// Inicializa bot
+startBot().catch(err => console.error('Erro ao iniciar o bot:', err));
