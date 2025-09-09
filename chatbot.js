@@ -38,7 +38,6 @@ app.listen(PORT, () => {
 });
 
 const client = new Client({
-    authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
         executablePath: '/usr/bin/chromium-browser',
@@ -46,7 +45,11 @@ const client = new Client({
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-zygote',
             '--disable-gpu',
+            '--disable-software-rasterizer',
+            '--disable-features=site-per-process',
             '--single-process'
         ]
     }
