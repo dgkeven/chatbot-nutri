@@ -38,16 +38,19 @@ app.listen(PORT, () => {
 });
 
 const client = new Client({
+    authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage'
-        ],
-        executablePath: '/usr/bin/chromium-browser'
-    },
-    authStrategy: new LocalAuth()
+            '--disable-dev-shm-usage',
+            '--single-process',
+            '--no-zygote',
+            '--disable-gpu',
+            '--disable-software-rasterizer'
+        ]
+    }
 });
 
 const agendamentos = {};
