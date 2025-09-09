@@ -41,6 +41,7 @@ const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true,
+        executablePath: '/usr/bin/chromium-browser', // <-- Chromium do sistema
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -49,11 +50,11 @@ const client = new Client({
             '--disable-gpu',
             '--no-zygote',
             '--single-process',
-            '--disable-software-rasterizer',
-            '--remote-debugging-port=9222'
+            '--disable-software-rasterizer'
         ]
     }
 });
+
 
 const agendamentos = {};
 const atendimentoManual = {};
