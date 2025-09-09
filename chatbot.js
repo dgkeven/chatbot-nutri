@@ -50,7 +50,8 @@ const client = new Client({
             '--disable-gpu',
             '--no-zygote',
             '--single-process',
-            '--disable-software-rasterizer'
+            '--disable-software-rasterizer',
+            '--disable-features=VizDisplayCompositor' // <--- importante
         ]
     }
 });
