@@ -38,6 +38,15 @@ app.listen(PORT, () => {
 });
 
 const client = new Client({
+    puppeteer: {
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage'
+        ],
+        executablePath: '/usr/bin/chromium-browser'
+    },
     authStrategy: new LocalAuth()
 });
 
