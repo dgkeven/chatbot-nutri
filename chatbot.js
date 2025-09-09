@@ -45,10 +45,12 @@ const client = new Client({
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--single-process',
-            '--no-zygote',
+            '--disable-accelerated-2d-canvas',
             '--disable-gpu',
-            '--disable-software-rasterizer'
+            '--no-zygote',
+            '--single-process',
+            '--disable-software-rasterizer',
+            '--remote-debugging-port=9222'
         ]
     }
 });
