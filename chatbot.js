@@ -1,5 +1,5 @@
 const express = require('express');
-const qrcode = require('qrcode-terminal');
+const qrcode = require('qrcode');
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@adiwajshing/baileys');
 
 const app = express();
