@@ -35,7 +35,7 @@ npm install
 ## ▶️ Executando o Bot
 
 ```bash
-node index.js
+node chatbot.js
 ```
 
 Ao iniciar, um QR Code será exibido no terminal. Escaneie com seu WhatsApp para autenticar.
