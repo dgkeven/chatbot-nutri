@@ -46,7 +46,8 @@ const client = new Client({
             '--disable-dev-shm-usage',
             '--disable-extensions',
             '--disable-gpu',
-            '--disable-software-rasterizer'
+            '--disable-software-rasterizer',
+            '--single-process'
             ],
     }
 });
