@@ -223,8 +223,5 @@ client.on('message', async msg => {
 
 });
 
-client.on('disconnected', (reason) => {
-    console.log('❌ Cliente desconectado:', reason);
-    console.log('🔄 Tentando reconectar...');
-    client.initialize();
-});
+client.initialize();
+
