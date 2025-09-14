@@ -48,10 +48,9 @@ const client = new Client({
             '--disable-gpu',
             '--disable-software-rasterizer',
             '--single-process'
-            ],
+        ],
     }
 });
-
 
 const agendamentos = {};
 const atendimentoManual = {};
@@ -224,4 +223,8 @@ client.on('message', async msg => {
 
 });
 
-client.initialize();
+client.on('disconnected', (reason) => {
+    console.log('❌ Cliente desconectado:', reason);
+    console.log('🔄 Tentando reconectar...');
+    client.initialize();
+});
