@@ -111,11 +111,11 @@ client.on('message', async msg => {
         case 0:
             client.sendMessage(chatId, `Olá! 👋 Bem-vinda! Como posso te ajudar hoje?
     
-    1 - Agendar consulta nutricional  
-    2 - Saber mais sobre o Grupo Metamorfose  
-    3 - Tira dúvidas ou envio de exames  
+1 - Agendar consulta nutricional  
+2 - Saber mais sobre o Grupo Metamorfose  
+3 - Tira dúvidas ou envio de exames  
     
-    ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
+❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
             agendamentos[chatId].etapa = 1;
             break;
 
@@ -123,15 +123,15 @@ client.on('message', async msg => {
             if (texto === '1') {
                 client.sendMessage(chatId, `Olá! Meu nome é Priscilla Dalbem, sou nutricionista há 13 anos, especializada em Nutrição Esportiva, Saúde da Mulher, Fitoterapia e Gastronomia Aplicada à Nutrição.
 
-                    Meu acompanhamento tem duração média de 50 minutos, onde realizo uma anamnese completa para entender sua rotina, preferências e objetivos. Também solicito exames de sangue para avaliar possíveis carências nutricionais ou alterações hormonais. Além disso, faço uma avaliação física detalhada, incluindo peso, altura, bioimpedância, dobras cutâneas e circunferências, para calcular seu percentual de gordura e massa muscular.
+Meu acompanhamento tem duração média de 50 minutos, onde realizo uma anamnese completa para entender sua rotina, preferências e objetivos. Também solicito exames de sangue para avaliar possíveis carências nutricionais ou alterações hormonais. Além disso, faço uma avaliação física detalhada, incluindo peso, altura, bioimpedância, dobras cutâneas e circunferências, para calcular seu percentual de gordura e massa muscular.
                     
-                    Com base nesses dados, elaboro seu plano alimentar personalizado, que é entregue em até 3 dias, juntamente com materiais complementares como receitas, lista de compras e checklist de automonitoramento. Ofereço suporte via WhatsApp para dúvidas e dificuldades, e os retornos são geralmente a cada 45 ou 60 dias, conforme necessidade.
+Com base nesses dados, elaboro seu plano alimentar personalizado, que é entregue em até 3 dias, juntamente com materiais complementares como receitas, lista de compras e checklist de automonitoramento. Ofereço suporte via WhatsApp para dúvidas e dificuldades, e os retornos são geralmente a cada 45 ou 60 dias, conforme necessidade.
                     
-                    O valor da consulta é R$ 280,00, sem direito a retorno.
+O valor da consulta é R$ 280,00, sem direito a retorno.
                     
-                    Caso tenha interesse, posso verificar um horário para você. 😊
+Caso tenha interesse, posso verificar um horário para você. 😊
                     
-                    Por favor, informe sua disponibilidade de dia e horário. Atendo de segunda a quinta-feira, das 08:00 às 11:00 e das 14:00 às 18:00.`);
+Por favor, informe sua disponibilidade de dia e horário. Atendo de segunda a quinta-feira, das 08:00 às 11:00 e das 14:00 às 18:00.`);
                 agendamentos[chatId].etapa = 2;
             } else if (texto === '2') {
                 const contato = await msg.getContact();
@@ -142,48 +142,49 @@ client.on('message', async msg => {
 
                 const mensagemGrupo = `🌸 *Grupo Metamorfose – Sua transformação começa agora!*
 
-                Você, mulher que está cansada de dietas restritivas, da culpa ao comer e da pressão para ter um corpo “perfeito”… chegou a hora de viver uma nova relação com a comida – e com você mesma.
+Você, mulher que está cansada de dietas restritivas, da culpa ao comer e da pressão para ter um corpo “perfeito”… chegou a hora de viver uma nova relação com a comida – e com você mesma.
                 
-                O *Metamorfose* é um grupo online de emagrecimento com duração de 15 dias, criado especialmente para mulheres que desejam cuidar da saúde, conquistar mais bem-estar e alcançar o emagrecimento de forma leve, consciente e sem terrorismo nutricional.
+O *Metamorfose* é um grupo online de emagrecimento com duração de 15 dias, criado especialmente para mulheres que desejam cuidar da saúde, conquistar mais bem-estar e alcançar o emagrecimento de forma leve, consciente e sem terrorismo nutricional.
                 
-                Durante esses dias, eu, Priscilla, nutricionista esportiva com especialização em saúde da mulher, estarei com você diariamente no WhatsApp, oferecendo:
+Durante esses dias, eu, Priscilla, nutricionista esportiva com especialização em saúde da mulher, estarei com você diariamente no WhatsApp, oferecendo:
                 
-                • Orientações práticas e acessíveis para uma alimentação equilibrada  
-                • Dicas e reflexões para melhorar sua relação com a comida  
-                • Suporte emocional e motivacional  
-                • Estímulo ao autocuidado e à aceitação do seu corpo em todas as fases  
+• Orientações práticas e acessíveis para uma alimentação equilibrada  
+• Dicas e reflexões para melhorar sua relação com a comida  
+• Suporte emocional e motivacional  
+• Estímulo ao autocuidado e à aceitação do seu corpo em todas as fases  
                 
-                ✨ *Não é sobre “seguir dieta”, é sobre se reconectar com seu corpo e com a sua essência. É sobre transformar de dentro para fora.*
+✨ *Não é sobre “seguir dieta”, é sobre se reconectar com seu corpo e com a sua essência. É sobre transformar de dentro para fora.*
                 
-                📣 *Vagas limitadas!* Me envie uma mensagem para garantir a sua participação no Grupo Metamorfose!`;
+📣 *Vagas limitadas!* Me envie uma mensagem para garantir a sua participação no Grupo Metamorfose!`;
 
                 client.sendMessage(chatId, mensagemGrupo);
                 delete agendamentos[chatId];
             } else if (texto === '3') {
-                client.sendMessage(chatId, `👩‍⚕️ Você pode enviar suas dúvidas por aqui ou anexar seus exames diretamente nesta conversa. Assim que possível, responderei ou encaminharei para análise. 😊  
+                client.sendMessage(chatId, `👩‍⚕️ Você pode enviar suas dúvidas por aqui ou anexar seus exames diretamente nesta conversa. Assim que possível, responderei ou encaminharei para análise. 😊 
     
-    ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
+❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
                 delete agendamentos[chatId];
             }
             break;
 
         case 2:
             agendamentos[chatId].disponibilidade = msg.body;
-            client.sendMessage(chatId, `Ótimo! Agora, por favor, informe seu principal objetivo com a consulta nutricional:
+            client.sendMessage(chatId, `Ótimo! Agora, por favor, informe seu(s) principal(is) objetivo(s) com a consulta nutricional.
+Você pode escolher mais de uma opção, basta enviar os números separados por vírgula ou espaço (ex: 1, 3 ou 2 5).
+
+1 - Emagrecimento  
+2 - Controle de taxas  
+3 - Reeducação alimentar  
+4 - Hipertrofia/definição  
+5 - Gestante/tentante  
+6 - Doenças associadas (Diabetes, Gordura no fígado, SOP, Problemas intestinais, etc).  
         
-        1 - Emagrecimento  
-        2 - Controle de taxas  
-        3 - Reeducação alimentar  
-        4 - Hipertrofia/definição  
-        5 - Gestante/tentante  
-        6 - Doenças associadas (Diabetes, Gordura no fígado, SOP, Problemas intestinais, etc).  
-        
-        ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
+❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
             agendamentos[chatId].etapa = 3;
             break;
 
         case 3:
-            const objetivos = {
+            const objetivosMap = {
                 '1': 'Emagrecimento',
                 '2': 'Controle de taxas',
                 '3': 'Reeducação alimentar',
@@ -192,14 +193,20 @@ client.on('message', async msg => {
                 '6': 'Doenças associadas'
             };
 
-            const escolha = objetivos[msg.body];
+            // Processa a entrada para aceitar múltiplos números
+            const escolhasNumeros = texto.replace(/,/g, ' ').split(/\s+/).filter(n => n);
 
-            if (escolha) {
-                agendamentos[chatId].objetivo = escolha;
-                client.sendMessage(chatId, `Perfeito! Recebi sua disponibilidade e objetivo: ${escolha}. Em breve entrarei em contato para agendarmos sua consulta. Até logo! 😊`);
+            const objetivosSelecionados = escolhasNumeros
+                .map(num => objetivosMap[num])
+                .filter(objetivo => objetivo); // Remove entradas inválidas
+
+            if (objetivosSelecionados.length > 0) {
+                const objetivosTexto = objetivosSelecionados.join(', ');
+                agendamentos[chatId].objetivo = objetivosTexto;
+                client.sendMessage(chatId, `Perfeito! Recebi sua disponibilidade e objetivo(s): ${objetivosTexto}. Em breve entrarei em contato para agendarmos sua consulta. Até logo! 😊`);
                 delete agendamentos[chatId];
             } else {
-                client.sendMessage(chatId, 'Opção inválida. Por favor, escolha uma das opções listadas. ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.');
+                client.sendMessage(chatId, 'Opção inválida. Por favor, escolha um ou mais números da lista (ex: 1, 3 ou 4). ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.');
             }
             break;
     }
@@ -220,8 +227,6 @@ client.on('message', async msg => {
         client.sendMessage(chatId, `🥰 Que bom saber do seu interesse, ${nome}! Assim que eu tiver uma nova data para o próximo Grupo Metamorfose, entrarei em contato com você. Até breve! 💕`);
         return;
     }
-
 });
 
 client.initialize();
-
