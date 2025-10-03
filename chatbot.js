@@ -205,8 +205,6 @@ Você pode escolher mais de uma opção, basta enviar os números separados por 
                 agendamentos[chatId].objetivo = objetivosTexto;
                 client.sendMessage(chatId, `Perfeito! Recebi sua disponibilidade e objetivo(s): ${objetivosTexto}. Em breve entrarei em contato para agendarmos sua consulta. Até logo! 😊`);
                 delete agendamentos[chatId];
-            } else {
-                client.sendMessage(chatId, 'Opção inválida. Por favor, escolha um ou mais números da lista (ex: 1, 3 ou 4). ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.');
             }
             break;
     }
