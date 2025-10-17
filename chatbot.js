@@ -185,9 +185,9 @@ async function handleClientMessage(chatId, texto, msg) {
             console.log(`[CLIENTE] Nova conversa. Iniciando atendimento para ${chatId}.`);
             await client.sendMessage(chatId, `Olá! 👋 Bem-vinda! Como posso te ajudar hoje?
     
-1 - Agendar consulta nutricional  
+1 - Agendar consulta nutricional e informações sobre meu acompanhamento nutricional
 2 - Saber mais sobre o Grupo Metamorfose  
-3 - Tira dúvidas ou envio de exames 
+3 - Tira dúvidas, dificuldades com o plano alimentar ou envio de exames 
     
 ❌ Envie "cancelar" a qualquer momento para encerrar o atendimento.`);
 
